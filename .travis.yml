@@ -17,35 +17,35 @@ jobs:
       script:
       - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
       - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
+      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
       - docker cp buildkit:/usr/bin/buildctl .
       - export BUILDKIT_HOST=tcp://0.0.0.0:1337
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.armv7 \
+        --frontend-opt filename=./Dockerfile.arm32v7 \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=DOCKERFILE_AMD64_PLACEHOLDER \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 \
         --exporter-opt push=false \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - export DOCKER_CLI_EXPERIMENTAL=enabled
       - |
-        docker manifest create forkpushbot/my-test-repo:latest \
-        forkpushbot/my-test-repo:latest-amd64 \
-        forkpushbot/my-test-repo:latest-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:latest
+        docker manifest create REPOSITORY_FULL_NAME_PLACEHOLDER:latest \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:latest REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 --arch amd64
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:latest REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7 --arch arm --variant v7
+      - docker manifest push REPOSITORY_FULL_NAME_PLACEHOLDER:latest
 
     - stage: build
       name: "push latest image"
@@ -56,35 +56,35 @@ jobs:
       script:
       - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
       - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
+      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
       - docker cp buildkit:/usr/bin/buildctl .
       - export BUILDKIT_HOST=tcp://0.0.0.0:1337
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.armv7 \
+        --frontend-opt filename=./Dockerfile.arm32v7 \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=DOCKERFILE_AMD64_PLACEHOLDER \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 \
         --exporter-opt push=true \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - export DOCKER_CLI_EXPERIMENTAL=enabled
       - |
-        docker manifest create forkpushbot/my-test-repo:latest \
-        forkpushbot/my-test-repo:latest-amd64 \
-        forkpushbot/my-test-repo:latest-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:latest
+        docker manifest create REPOSITORY_FULL_NAME_PLACEHOLDER:latest \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:latest REPOSITORY_FULL_NAME_PLACEHOLDER:latest-amd64 --arch amd64
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:latest REPOSITORY_FULL_NAME_PLACEHOLDER:latest-armv7 --arch arm --variant v7
+      - docker manifest push REPOSITORY_FULL_NAME_PLACEHOLDER:latest
 
     - stage: build
       name: "push tagged image"
@@ -95,40 +95,40 @@ jobs:
       script:
       - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
       - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
+      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
       - docker cp buildkit:/usr/bin/buildctl .
       - export BUILDKIT_HOST=tcp://0.0.0.0:1337
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.armv7 \
+        --frontend-opt filename=./Dockerfile.arm32v7 \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=DOCKERFILE_AMD64_PLACEHOLDER \
         --exporter image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
+        --exporter-opt name=docker.io/REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-amd64 \
         --exporter-opt push=true \
         --local dockerfile=. \
-        --local context=.
+        --local context=BUILD_CONTEXT_PLACEHOLDER
       - export DOCKER_CLI_EXPERIMENTAL=enabled
       - |
-        docker manifest create forkpushbot/my-test-repo:"${TRAVIS_TAG}" \
-        forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
-        forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:"${TRAVIS_TAG}"
+        docker manifest create REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}" \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-amd64 \
+        REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-armv7
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}" REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-amd64 --arch amd64
+      - docker manifest annotate REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}" REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"-armv7 --arch arm --variant v7
+      - docker manifest push REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"
 
-      - docker build -f ./Dockerfile.amd64 -t forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" .
-      - docker build -f ./Dockerfile.arm32v7 -t forkpushbot/my-test-repo:amd64-"${TRAVIS_TAG}" .
-      - docker tag forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"
+      - docker build -f DOCKERFILE_AMD64_PLACEHOLDER -t REPOSITORY_FULL_NAME_PLACEHOLDER:arm32v7-"${TRAVIS_TAG}" .
+      - docker build -f ./Dockerfile.arm32v7 -t REPOSITORY_FULL_NAME_PLACEHOLDER:amd64-"${TRAVIS_TAG}" .
+      - docker tag REPOSITORY_FULL_NAME_PLACEHOLDER:arm32v7-"${TRAVIS_TAG}" REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"
       - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-      - docker push forkpushbot/my-test-repo:amd64-"${TRAVIS_TAG}"
-      - docker push forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}"
-      - docker push forkpushbot/my-test-repo:"${TRAVIS_TAG}"
+      - docker push REPOSITORY_FULL_NAME_PLACEHOLDER:amd64-"${TRAVIS_TAG}"
+      - docker push REPOSITORY_FULL_NAME_PLACEHOLDER:arm32v7-"${TRAVIS_TAG}"
+      - docker push REPOSITORY_FULL_NAME_PLACEHOLDER:"${TRAVIS_TAG}"
