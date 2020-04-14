@@ -18,7 +18,6 @@ jobs:
       - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
       - cd ./base_repo
       - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
-      - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
       - docker run --privileged linuxkit/binfmt:v0.6
       - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
       - docker cp buildkit:/usr/bin/buildctl .
