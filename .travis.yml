@@ -25,7 +25,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.arm32v7 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
         --exporter-opt push=false \
@@ -34,7 +34,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
         --exporter-opt push=false \
@@ -67,7 +67,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.arm32v7 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
         --exporter-opt push=false \
@@ -76,7 +76,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
         --exporter-opt push=true \
@@ -109,7 +109,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.arm32v7 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 \
         --exporter-opt push=false \
@@ -118,7 +118,7 @@ jobs:
       - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.amd64 \
+        --frontend-opt filename=./Dockerfile.alpine \
         --exporter image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
         --exporter-opt push=true \
@@ -133,7 +133,7 @@ jobs:
       - docker manifest annotate forkpushbot/my-test-repo:"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 --arch arm --variant v7
       - docker manifest push forkpushbot/my-test-repo:"${TRAVIS_TAG}"
 
-      - docker build -f ./Dockerfile.amd64 -t forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" .
+      - docker build -f ./Dockerfile.alpine -t forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" .
       - docker build -f ./Dockerfile.arm32v7 -t forkpushbot/my-test-repo:amd64-"${TRAVIS_TAG}" .
       - docker tag forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"
       - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
