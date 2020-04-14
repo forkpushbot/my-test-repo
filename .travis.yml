@@ -40,14 +40,6 @@ jobs:
         --exporter-opt push=false \
         --local dockerfile=. \
         --local context=.
-      - export DOCKER_CLI_EXPERIMENTAL=enabled
-      - |
-        docker manifest create forkpushbot/my-test-repo:latest \
-        forkpushbot/my-test-repo:latest-amd64 \
-        forkpushbot/my-test-repo:latest-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:latest
 
     - stage: build
       name: "push latest image"
