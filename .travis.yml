@@ -66,6 +66,9 @@ jobs:
         --local dockerfile=. \
         --local context=.
       - |
+        docker manifest create forkpushbot/my-test-repo:latest \
+        forkpushbot/my-test-repo:latest-armv7
+      - |
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
         --frontend-opt filename=./Dockerfile.alpine \
