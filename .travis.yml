@@ -26,7 +26,7 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
@@ -35,7 +35,7 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
         --exporter-opt push=false \
         --local dockerfile=. \
@@ -60,7 +60,7 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
@@ -69,13 +69,12 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
         --exporter-opt push=true \
         --local dockerfile=. \
         --local context=.
       - export DOCKER_CLI_EXPERIMENTAL=enabled
-      - docker images
       - |
         docker manifest create forkpushbot/my-test-repo:latest \
         forkpushbot/my-test-repo:latest-amd64 \
@@ -103,7 +102,7 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/arm/v7 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 \
         --exporter-opt push=false \
         --local dockerfile=. \
@@ -112,7 +111,7 @@ jobs:
         ./buildctl build --frontend dockerfile.v0 \
         --frontend-opt platform=linux/amd64 \
         --frontend-opt filename=./Dockerfile.alpine \
-        --exporter image \
+        --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
         --exporter-opt push=true \
         --local dockerfile=. \
