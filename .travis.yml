@@ -62,7 +62,7 @@ jobs:
         --frontend-opt filename=./Dockerfile.alpine \
         --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
-        --exporter-opt push=false \
+        --exporter-opt push=true \
         --local dockerfile=. \
         --local context=.
       - |
@@ -104,7 +104,7 @@ jobs:
         --frontend-opt filename=./Dockerfile.alpine \
         --output type=image \
         --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 \
-        --exporter-opt push=false \
+        --exporter-opt push=true \
         --local dockerfile=. \
         --local context=.
       - |
