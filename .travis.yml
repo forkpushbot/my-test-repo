@@ -14,17 +14,12 @@ script:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - docker run --privileged multiarch/qemu-user-static:register --reset
   - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
   - cd ./base_repo
   - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
 
   - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
   - docker version
-
-  - docker ps -a
-  - docker logs $(docker ps -a -q)
-
 
   # - make prepare
   - mkdir -vp ~/.docker/cli-plugins/ ~/dockercache
@@ -37,6 +32,7 @@ script:
 
   # - make build-push
   - |
+    docker run --privileged multiarch/qemu-user-static:register --reset;\
     docker buildx build --push \
     --build-arg CI_NAME=travis \
     --platform linux/arm/v7,linux/arm64/v8,linux/386,linux/amd64 \
