@@ -4,6 +4,7 @@ dist: bionic
 
 env:
   - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
+  - BUILDX_VER=v0.3.0
 
 before_install:
   - sudo rm -rf /var/lib/apt/lists/*
