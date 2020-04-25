@@ -1,23 +1,75 @@
+dist: xenial
 
-language: bash
 
-dist: bionic
+addons:
+  apt:
+    packages:
+      - docker-ce
 
-env:
-  - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
+jobs:
+  include:
+    - stage: build
+      name: "build image"
+      if: (tag IS blank)
+      sudo: required
+      services:
+        - docker
+      script:
+      - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
+      - cd ./base_repo
+      - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
+      - docker run --privileged linuxkit/binfmt:v0.6
+      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
+      - docker cp buildkit:/usr/bin/buildctl .
+      - export BUILDKIT_HOST=tcp://0.0.0.0:1337
+      - |
+        ./buildctl build --frontend dockerfile.v0 \
+        --frontend-opt platform=linux/arm/v7 \
+        --frontend-opt filename=./Dockerfile.alpine \
+        --output type=image \
+        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
+        --exporter-opt push=false \
+        --local dockerfile=. \
+        --local context=.
+      - |
+        ./buildctl build --frontend dockerfile.v0 \
+        --frontend-opt platform=linux/amd64 \
+        --frontend-opt filename=./Dockerfile.alpine \
+        --output type=image \
+        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
+        --exporter-opt push=false \
+        --local dockerfile=. \
+        --local context=.
 
-before_install:
-  - git clone https://github.com/jdrouet/docker-on-ci docker-on-ci && cd docker-on-ci
-  - sudo rm -rf /var/lib/apt/lists/*
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - lsb_release -cs
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    - stage: build
+      name: "push latest image"
+      if: (branch = master AND NOT type = pull_request)
+      sudo: required
+      services:
+      - docker
+      env:
+      - BUILDX_VER=v0.3.0
+      - DOCKER_CLI_EXPERIMENTAL=enabled
+      script:
+      - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
+      - cd ./base_repo
+      - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
+      - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+      - sudo rm -rf /var/lib/apt/lists/*
+      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      - lsb_release -cs
+      - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+      - sudo apt-get update
+      - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+      - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
-script:
-  - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-  - docker version
-  - make prepare
-  - make build-push
+      - mkdir -vp ~/.docker/cli-plugins/ ~/dockercache
+      - curl --silent -L "https://github.com/docker/buildx/releases/download/${BUILDX_VER}/buildx-${BUILDX_VER}.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+      - chmod a+x ~/.docker/cli-plugins/docker-buildx
+      - docker version
+      - docker buildx create --use
+      - |
+        docker buildx build --push \
+        --build-arg CI_NAME=travis \
+        --platform linux/arm/v7,linux/arm64/v8,linux/386,linux/amd64 \
+        -t forkpushbot/my-test-repo:latest-travis .
