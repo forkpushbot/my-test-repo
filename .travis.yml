@@ -1,135 +1,22 @@
-dist: xenial
 
+language: bash
 
-addons:
-  apt:
-    packages:
-      - docker-ce
+dist: bionic
 
-jobs:
-  include:
-    - stage: build
-      name: "build image"
-      if: (tag IS blank)
-      sudo: required
-      services:
-        - docker
-      script:
-      - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
-      - cd ./base_repo
-      - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
-      - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
-      - docker cp buildkit:/usr/bin/buildctl .
-      - export BUILDKIT_HOST=tcp://0.0.0.0:1337
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
-        --exporter-opt push=false \
-        --local dockerfile=. \
-        --local context=.
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
-        --exporter-opt push=false \
-        --local dockerfile=. \
-        --local context=.
+env:
+  - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
 
-    - stage: build
-      name: "push latest image"
-      if: (branch = master AND NOT type = pull_request)
-      sudo: required
-      services:
-        - docker
-      script:
-      - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
-      - cd ./base_repo
-      - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
-      - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-      - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
-      - docker cp buildkit:/usr/bin/buildctl .
-      - export BUILDKIT_HOST=tcp://0.0.0.0:1337
-      - docker ps
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-armv7 \
-        --exporter-opt push=true \
-        --local dockerfile=. \
-        --local context=.
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:latest-amd64 \
-        --exporter-opt push=true \
-        --local dockerfile=. \
-        --local context=.
-      - export DOCKER_CLI_EXPERIMENTAL=enabled
-      - |
-        docker manifest create forkpushbot/my-test-repo:latest \
-        forkpushbot/my-test-repo:latest-amd64 \
-        forkpushbot/my-test-repo:latest-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:latest forkpushbot/my-test-repo:latest-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:latest
+before_install:
+  - sudo rm -rf /var/lib/apt/lists/*
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - lsb_release -cs
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
-    - stage: build
-      name: "push tagged image"
-      if: (tag IS present)
-      sudo: required
-      services:
-        - docker
-      script:
-      - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
-      - cd ./base_repo
-      - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
-      - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-      - docker run --privileged linuxkit/binfmt:v0.6
-      - docker run -d --privileged -p 1337:1337 --name buildkit moby/buildkit:v0.7.0 --addr tcp://0.0.0.0:1337 --oci-worker-platform linux/amd64 --oci-worker-platform linux/arm/v7
-      - docker cp buildkit:/usr/bin/buildctl .
-      - export BUILDKIT_HOST=tcp://0.0.0.0:1337
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/arm/v7 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 \
-        --exporter-opt push=true \
-        --local dockerfile=. \
-        --local context=.
-      - |
-        ./buildctl build --frontend dockerfile.v0 \
-        --frontend-opt platform=linux/amd64 \
-        --frontend-opt filename=./Dockerfile.alpine \
-        --output type=image \
-        --exporter-opt name=docker.io/forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
-        --exporter-opt push=true \
-        --local dockerfile=. \
-        --local context=.
-      - export DOCKER_CLI_EXPERIMENTAL=enabled
-      - |
-        docker manifest create forkpushbot/my-test-repo:"${TRAVIS_TAG}" \
-        forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 \
-        forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7
-      - docker manifest annotate forkpushbot/my-test-repo:"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"-amd64 --arch amd64
-      - docker manifest annotate forkpushbot/my-test-repo:"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"-armv7 --arch arm --variant v7
-      - docker manifest push forkpushbot/my-test-repo:"${TRAVIS_TAG}"
-
-      - docker build -f ./Dockerfile.alpine -t forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" .
-      - docker build -f ./Dockerfile.arm32v7 -t forkpushbot/my-test-repo:amd64-"${TRAVIS_TAG}" .
-      - docker tag forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}" forkpushbot/my-test-repo:"${TRAVIS_TAG}"
-      - echo ${DOCKERHUB_PASSWORD} | docker login --username ${DOCKERHUB_USERNAME} --password-stdin
-      - docker push forkpushbot/my-test-repo:amd64-"${TRAVIS_TAG}"
-      - docker push forkpushbot/my-test-repo:arm32v7-"${TRAVIS_TAG}"
-      - docker push forkpushbot/my-test-repo:"${TRAVIS_TAG}"
+script:
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker version
+  - make prepare
+  - make build-push
