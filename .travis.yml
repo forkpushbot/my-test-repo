@@ -6,7 +6,8 @@ env:
   - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
   - BUILDX_VER=v0.3.0
 
-before_install:
+
+script:
   - sudo rm -rf /var/lib/apt/lists/*
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - lsb_release -cs
@@ -14,8 +15,6 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-
-script:
   - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
   - cd ./base_repo
   - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
