@@ -1,5 +1,8 @@
 sudo: required
-arch: armv7
+arch:
+- armv7
+- arm64
+- amd64
 services:
 - docker
 language: bash
