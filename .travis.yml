@@ -14,7 +14,7 @@ script:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+  - docker run --privileged multiarch/qemu-user-static:register --reset
   - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
   - cd ./base_repo
   - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
