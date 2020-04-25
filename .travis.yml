@@ -6,7 +6,7 @@ env:
   - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
   - BUILDX_VER=v0.3.0
 
-  script:
+before_install:
   - sudo rm -rf /var/lib/apt/lists/*
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - lsb_release -cs
@@ -15,6 +15,7 @@ env:
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
+script:
   - git clone https://github.com/nginx-proxy/nginx-proxy base_repo
   - cd ./base_repo
   - git checkout 3cbc5417b7ac38037a9ec00fe80e0996d7da3d75
@@ -22,16 +23,23 @@ env:
   - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
   - docker version
 
+
+
+
   # - make prepare
   - mkdir -vp ~/.docker/cli-plugins/ ~/dockercache
   - curl --silent -L "https://github.com/docker/buildx/releases/download/${BUILDX_VER}/buildx-${BUILDX_VER}.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   - chmod a+x ~/.docker/cli-plugins/docker-buildx
-  - docker ps
+
   - docker buildx create --use
-  - docker ps
+
+
+
   # - make build-push
   - |
     docker buildx build --push \
     --build-arg CI_NAME=travis \
     --platform linux/arm/v7,linux/arm64/v8,linux/386,linux/amd64 \
     -t forkpushbot/my-test-repo:latest-travis .
+
+
