@@ -7,6 +7,7 @@ env:
   - CI_NAME=travis DOCKER_CLI_EXPERIMENTAL=enabled
 
 before_install:
+  - git clone https://github.com/jdrouet/docker-on-ci docker-on-ci && cd docker-on-ci
   - sudo rm -rf /var/lib/apt/lists/*
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - lsb_release -cs
