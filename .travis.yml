@@ -6,8 +6,8 @@ language: bash
 script:
 - git clone https://github.com/jwilder/nginx-proxy nginx-proxy
 - cd ./nginx-proxy
-# prepare qemu
-- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# # prepare qemu
+# - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 # build image
 - docker build -t forkpushbot/my-test-repo .
 # test image
