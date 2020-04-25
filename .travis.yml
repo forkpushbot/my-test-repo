@@ -23,7 +23,8 @@ script:
   - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
   - docker version
 
-
+  - docker ps -a
+  - docker logs $(docker ps -a -q)
 
 
   # - make prepare
