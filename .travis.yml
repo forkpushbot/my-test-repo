@@ -14,7 +14,7 @@ script:
 # push image
 - >
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    docker login -u="$DOCKERHUB_USER" -p="$DOCKERHUB_PASS"
+    docker login -u="$DOCKERHUB_USERNAME" -p="$DOCKERHUB_PASSWORD"
     TAG=latest
     docker tag forkpushbot/my-test-repo forkpushbot/my-test-repo:$TAG
     docker push forkpushbot/my-test-repo:$TAG
